@@ -1,0 +1,32 @@
+{
+  "name": "CrossTag",
+  "version": "1.0.0",
+  "description": "A simple image tagging app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.example.CrossTag",
+    "productName": "CrossTag",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "target": "dir"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Graphics"
+    }
+  }
+}
