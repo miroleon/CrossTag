@@ -1,0 +1,298 @@
+@import url('./material-symbols/outlined.css');
+
+/* Light Theme (Default) */
+:root {
+    /* Base Color */
+    --color-primary: rgba(17, 21, 28, 1);
+
+    /* Primary Variants */
+    --color-primary-light: rgba(34, 39, 48, 1);
+    /* Slightly lighter */
+    --color-primary-dark: rgba(12, 15, 20, 1);
+    /* Slightly darker */
+
+    /* Secondary Colors */
+    --color-secondary: rgba(52, 73, 94, 1);
+    /* Complementary secondary color */
+    --color-secondary-light: rgba(84, 110, 122, 1);
+    --color-secondary-dark: rgba(34, 49, 63, 1);
+
+    /* Accent Colors */
+    --color-accent: rgba(231, 76, 60, 1);
+    /* A vibrant accent color */
+    --color-accent-light: rgba(241, 112, 99, 1);
+    --color-accent-dark: rgba(192, 57, 43, 1);
+
+    /* Background Colors */
+    --color-background: rgba(17, 21, 28, 1);
+    /* Dark background */
+    --color-background-light: rgba(34, 39, 48, 1);
+    /* Slightly lighter background */
+
+    /* Text Colors */
+    --color-text-primary: rgba(255, 255, 255, 1);
+    /* White text for dark backgrounds */
+    --color-text-secondary: rgba(189, 195, 199, 1);
+    /* Light gray for secondary text */
+
+    /* Border Colors */
+    --color-border: rgba(44, 62, 80, 1);
+    /* Subtle border color */
+
+    /* Utility Colors */
+    --color-success: rgba(46, 204, 113, 1);
+    /* Success messages */
+    --color-warning: rgba(241, 196, 15, 1);
+    /* Warning messages */
+    --color-error: rgba(231, 76, 60, 1);
+    /* Error messages */
+}
+
+.light-theme {
+    /* Base Color */
+    --color-primary: rgba(17, 21, 28, 1);
+
+    /* Primary Variants */
+    --color-primary-light: rgba(34, 39, 48, 1);
+    /* Slightly lighter */
+    --color-primary-dark: rgba(12, 15, 20, 1);
+    /* Slightly darker */
+
+    /* Secondary Colors */
+    --color-secondary: rgba(52, 73, 94, 1);
+    /* Complementary secondary color */
+    --color-secondary-light: rgba(84, 110, 122, 1);
+    --color-secondary-dark: rgba(34, 49, 63, 1);
+
+    /* Accent Colors */
+    --color-accent: rgba(231, 76, 60, 1);
+    /* A vibrant accent color */
+    --color-accent-light: rgba(241, 112, 99, 1);
+    --color-accent-dark: rgba(192, 57, 43, 1);
+
+    /* Background Colors */
+    --color-background: rgba(255, 255, 255, 1);
+    /* Light background */
+    --color-background-light: rgba(245, 245, 245, 1);
+    /* Slightly lighter background */
+
+    /* Text Colors */
+    --color-text-primary: rgba(17, 21, 28, 1);
+    /* Dark text for light backgrounds */
+    --color-text-secondary: rgba(89, 89, 89, 1);
+    /* Darker gray for secondary text */
+
+    /* Border Colors */
+    --color-border: rgba(220, 220, 220, 1);
+    /* Light border color */
+
+    /* Utility Colors */
+    --color-success: rgba(46, 204, 113, 1);
+    /* Success messages */
+    --color-warning: rgba(241, 196, 15, 1);
+    /* Warning messages */
+    --color-error: rgba(231, 76, 60, 1);
+    /* Error messages */
+}
+
+/* Global Styles */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+.container {
+    width: 100dvw;
+    height: 100dvh;
+    display: grid;
+    grid-template-columns: 0.7fr 1.5fr 0.8fr;
+    grid-template-rows: 0.2fr 2.3fr 0.5fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+        "header header header"
+        "sidebar image-grid-container text-grid-container"
+        "controls controls controls";
+}
+
+#header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 10px;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+#controls {
+    grid-area: controls;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background-color: var(--color-background-light);
+    color: var(--color-text-primary);
+}
+
+#sidebar {
+    grid-area: sidebar;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+
+    border-right: 1px solid var(--color-border);
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    overflow-y: auto;
+}
+
+#image-grid-container {
+    grid-area: image-grid-container;
+    background: var(--color-background-light);
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#image-container {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 5px;
+    display: block;
+    background-color: var(--color-background-light);
+}
+
+#text-grid-container {
+    grid-area: text-grid-container;
+    padding: 10px;
+    background-color: var(--color-background-light);
+    color: var(--color-text-primary);
+}
+
+#text-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-size: 1.15rem;
+}
+
+#images-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+#images-list li {
+    padding: 5px;
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+#images-list li:hover {
+    background-color: var(--color-background-light);
+}
+
+button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+#add-to-all-input,
+#search-input,
+#replace-input,
+#rename-base-input,
+#rename-all-btn {
+    /* width: 200px; */
+    padding: 5px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+}
+
+.radio-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-primary);
+}
+
+#status-message {
+    font-size: 14px;
+    color: var(--color-success);
+    margin-left: auto;
+}
+
+/* Modal styles */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#modal {
+    background: var(--color-background);
+    padding: 20px;
+    border-radius: 6px;
+    min-width: 300px;
+    text-align: center;
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+#modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+#modal h2 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: var(--color-text-primary);
+}
+
+/* Utility Classes */
+.success {
+    color: var(--color-success);
+}
+
+.warning {
+    color: var(--color-warning);
+}
+
+.error {
+    color: var(--color-error);
+}

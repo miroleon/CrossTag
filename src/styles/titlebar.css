@@ -1,0 +1,52 @@
+.title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    height: 25px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background-color: var(--primary-color-opaque);
+    -webkit-app-region: drag;
+    border-bottom: 1px solid var(--secondary-color-opaque);
+    z-index: 4;
+}
+
+.title-bar .window-controls {
+    padding-right: 6px;
+    display: flex;
+    -webkit-app-region: no-drag;
+}
+
+.title-bar .window-controls button {
+    color: var(--secondary-color);
+    padding: 0;
+    margin: 0px 4px;
+    /* width: 30px;
+    height: 30px; */
+    background-color: var(--primary-color-opaque);
+    /* box-shadow: rgb(0 0 0 / 5%) 0 0 8px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    transition: all .5s ease;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+}
+
+.title-bar .window-controls #minimize-btn:hover {
+    background-color: #1DB954;
+    color: hsl(0, 0%, 100%);
+    box-shadow: #1DB954 0px 7px 29px 0px;
+}
+
+.title-bar .window-controls #close-btn:hover {
+    background-color: #e74c3c;
+    color: hsl(0, 0%, 100%);
+    box-shadow: #e74c3c 0px 7px 29px 0px;
+}

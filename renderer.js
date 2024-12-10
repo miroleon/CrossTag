@@ -13,6 +13,13 @@ const appendPositionEnd = document.getElementById('append-position-end');
 const statusMessage = document.getElementById('status-message');
 const clearAllBtn = document.getElementById('clear-all-btn');
 
+const searchInput = document.getElementById('search-input');
+const replaceInput = document.getElementById('replace-input');
+const replaceAllBtn = document.getElementById('replace-all-btn');
+
+const renameBaseInput = document.getElementById('rename-base-input');
+const renameAllBtn = document.getElementById('rename-all-btn');
+
 // Modal elements
 const modalOverlay = document.getElementById('modal-overlay');
 const modalYesBtn = document.getElementById('modal-yes');
@@ -111,7 +118,6 @@ clearAllBtn.addEventListener('click', () => {
         statusMessage.textContent = 'No folder selected.';
         return;
     }
-    // Show modal
     showModal();
 });
 
@@ -139,6 +145,41 @@ modalNoBtn.addEventListener('click', () => {
     hideModal();
 });
 
+replaceAllBtn.addEventListener('click', async () => {
+    if (!currentFolder) {
+        statusMessage.textContent = 'No folder selected.';
+        return;
+    }
+
+    const searchFor = searchInput.value;
+    const replaceWith = replaceInput.value;
+
+    if (!searchFor) {
+        statusMessage.textContent = 'Please enter a search term.';
+        return;
+    }
+
+    const result = await window.electronAPI.searchAndReplace(currentFolder, searchFor, replaceWith);
+    if (result.success) {
+        // Update local imageData content
+        imagesData = imagesData.map(item => {
+            const regex = new RegExp(searchFor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+            const newContent = item.content.replace(regex, replaceWith);
+            item.content = newContent;
+            return item;
+        });
+
+        // If an image is currently loaded, update its content
+        if (currentIndex !== -1) {
+            textContainer.value = imagesData[currentIndex].content;
+        }
+
+        statusMessage.textContent = 'Search and replace completed successfully.';
+    } else {
+        statusMessage.textContent = 'Error in search and replace: ' + result.error;
+    }
+});
+
 function showModal() {
     modalOverlay.style.display = 'flex';
 }
@@ -146,3 +187,35 @@ function showModal() {
 function hideModal() {
     modalOverlay.style.display = 'none';
 }
+
+renameAllBtn.addEventListener('click', async () => {
+    if (!currentFolder) {
+        statusMessage.textContent = 'No folder selected.';
+        return;
+    }
+
+    const baseName = renameBaseInput.value;
+    if (!baseName.trim()) {
+        statusMessage.textContent = 'Please enter a base name.';
+        return;
+    }
+
+    const result = await window.electronAPI.renameAll(currentFolder, baseName);
+    if (result.success) {
+        // After renaming, re-select the folder to refresh image list and data
+        const reloadResult = await window.electronAPI.selectFolder();
+        if (!reloadResult.canceled) {
+            currentFolder = reloadResult.folder;
+            imagesData = reloadResult.images;
+            displayImageList();
+            if (imagesData.length > 0) {
+                loadImageAndText(0);
+            } else {
+                clearDisplay();
+            }
+            statusMessage.textContent = 'All images renamed successfully.';
+        }
+    } else {
+        statusMessage.textContent = 'Error renaming files: ' + result.error;
+    }
+});

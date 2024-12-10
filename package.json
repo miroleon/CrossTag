@@ -25,8 +25,14 @@
       "target": "dir"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Graphics"
     }
+  },
+  "dependencies": {
+    "material-symbols": "^0.27.2"
   }
 }
