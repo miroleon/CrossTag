@@ -7,6 +7,16 @@ const imageContainer = document.getElementById('image-container');
 const textContainer = document.getElementById('text-container');
 const imagesList = document.getElementById('images-list');
 const addToAllBtn = document.getElementById('add-to-all-btn');
+const addToAllInput = document.getElementById('add-to-all-input');
+const appendPositionStart = document.getElementById('append-position-start');
+const appendPositionEnd = document.getElementById('append-position-end');
+const statusMessage = document.getElementById('status-message');
+const clearAllBtn = document.getElementById('clear-all-btn');
+
+// Modal elements
+const modalOverlay = document.getElementById('modal-overlay');
+const modalYesBtn = document.getElementById('modal-yes');
+const modalNoBtn = document.getElementById('modal-no');
 
 selectFolderBtn.addEventListener('click', async () => {
     const result = await window.electronAPI.selectFolder();
@@ -20,6 +30,8 @@ selectFolderBtn.addEventListener('click', async () => {
     } else {
         clearDisplay();
     }
+
+    statusMessage.textContent = '';
 });
 
 function displayImageList() {
@@ -27,7 +39,6 @@ function displayImageList() {
     imagesData.forEach((img, idx) => {
         const li = document.createElement('li');
         li.textContent = img.imageName;
-        li.style.cursor = 'pointer';
         li.addEventListener('click', () => loadImageAndText(idx));
         imagesList.appendChild(li);
     });
@@ -46,10 +57,10 @@ textContainer.addEventListener('input', async () => {
     const data = imagesData[currentIndex];
     const newContent = textContainer.value;
     const result = await window.electronAPI.updateTextFile(data.txtPath, newContent);
-    if (result.success) {
-        imagesData[currentIndex].content = newContent;
-    } else {
+    if (!result.success) {
         console.error('Failed to update text file', result.error);
+    } else {
+        imagesData[currentIndex].content = newContent;
     }
 });
 
@@ -60,24 +71,78 @@ function clearDisplay() {
 
 addToAllBtn.addEventListener('click', async () => {
     if (!currentFolder) {
-        alert('No folder selected.');
+        statusMessage.textContent = 'No folder selected.';
         return;
     }
-    const textToAppend = prompt('Enter the text to append to all .txt files:');
-    if (textToAppend == null) return;
 
-    const result = await window.electronAPI.appendToAll(currentFolder, textToAppend);
+    const textToAppend = addToAllInput.value;
+    if (!textToAppend) {
+        statusMessage.textContent = 'Please enter the text to append.';
+        return;
+    }
+
+    const position = appendPositionStart.checked ? 'start' : 'end';
+
+    const result = await window.electronAPI.appendToAll(currentFolder, textToAppend, position);
     if (result.success) {
-        // Update local data as well
         imagesData = imagesData.map(item => {
-            item.content += textToAppend;
+            if (position === 'start') {
+                item.content = textToAppend + item.content;
+            } else {
+                item.content = item.content + textToAppend;
+            }
             return item;
         });
+
         if (currentIndex !== -1) {
             textContainer.value = imagesData[currentIndex].content;
         }
-        alert('Text appended to all files successfully.');
+
+        addToAllInput.value = '';
+        statusMessage.textContent = 'Text appended to all files successfully.';
+        addToAllInput.focus();
     } else {
-        alert('Error appending text: ' + result.error);
+        statusMessage.textContent = 'Error appending text: ' + result.error;
     }
 });
+
+clearAllBtn.addEventListener('click', () => {
+    if (!currentFolder) {
+        statusMessage.textContent = 'No folder selected.';
+        return;
+    }
+    // Show modal
+    showModal();
+});
+
+modalYesBtn.addEventListener('click', async () => {
+    hideModal();
+    const result = await window.electronAPI.clearAll(currentFolder);
+    if (result.success) {
+        imagesData = imagesData.map(item => {
+            item.content = '';
+            return item;
+        });
+
+        if (currentIndex !== -1) {
+            textContainer.value = '';
+        }
+
+        statusMessage.textContent = 'All text files have been cleared.';
+        addToAllInput.focus();
+    } else {
+        statusMessage.textContent = 'Error clearing files: ' + result.error;
+    }
+});
+
+modalNoBtn.addEventListener('click', () => {
+    hideModal();
+});
+
+function showModal() {
+    modalOverlay.style.display = 'flex';
+}
+
+function hideModal() {
+    modalOverlay.style.display = 'none';
+}

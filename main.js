@@ -74,15 +74,41 @@ ipcMain.handle('update-text-file', (event, txtPath, newContent) => {
     }
 });
 
-ipcMain.handle('append-to-all', (event, folder, textToAppend) => {
+ipcMain.handle('append-to-all', (event, folder, textToAppend, position) => {
     try {
         const files = fs.readdirSync(folder);
-        for (const file of files) {
-            if (path.extname(file).toLowerCase() === '.txt') {
-                const txtPath = path.join(folder, file);
-                fs.appendFileSync(txtPath, textToAppend, 'utf8');
+        const txtFiles = files.filter((file) => path.extname(file).toLowerCase() === '.txt');
+
+        for (const file of txtFiles) {
+            const txtPath = path.join(folder, file);
+            const oldContent = fs.readFileSync(txtPath, 'utf8');
+            let newContent;
+            if (position === 'start') {
+                newContent = textToAppend + oldContent;
+            } else {
+                // Default to end
+                newContent = oldContent + textToAppend;
             }
+            fs.writeFileSync(txtPath, newContent, 'utf8');
         }
+
+        return { success: true };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('clear-all', (event, folder) => {
+    try {
+        const files = fs.readdirSync(folder);
+        const txtFiles = files.filter((file) => path.extname(file).toLowerCase() === '.txt');
+
+        for (const file of txtFiles) {
+            const txtPath = path.join(folder, file);
+            fs.writeFileSync(txtPath, '', 'utf8'); // Clear content
+        }
+
         return { success: true };
     } catch (err) {
         console.error(err);

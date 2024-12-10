@@ -30,6 +30,9 @@
         #controls {
             padding: 10px;
             border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         #viewer {
@@ -46,6 +49,7 @@
         #images-list li {
             padding: 5px;
             border-bottom: 1px solid #eee;
+            cursor: pointer;
         }
 
         #image-container {
@@ -68,12 +72,54 @@
             height: 100%;
         }
 
-        #add-to-all-btn {
-            margin-left: 10px;
+        #add-to-all-input {
+            width: 300px;
         }
 
-        #select-folder-btn {
-            margin-right: 10px;
+        .radio-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #status-message {
+            font-size: 14px;
+            color: #2c7;
+            margin-left: auto;
+        }
+
+        /* Modal styles */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #modal {
+            background: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        #modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        #modal h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -85,7 +131,16 @@
     <div id="main">
         <div id="controls">
             <button id="select-folder-btn">Select Folder</button>
+            <input type="text" id="add-to-all-input" placeholder="Text to append...">
+            <div class="radio-container">
+                <label><input type="radio" name="append-position" id="append-position-start" value="start">
+                    Start</label>
+                <label><input type="radio" name="append-position" id="append-position-end" value="end" checked>
+                    End</label>
+            </div>
             <button id="add-to-all-btn">Add to All</button>
+            <button id="clear-all-btn">Clear All</button>
+            <div id="status-message"></div>
         </div>
         <div id="viewer">
             <img id="image-container" alt="No image selected" />
@@ -94,6 +149,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="modal-overlay">
+        <div id="modal">
+            <h2>Clear all text files?</h2>
+            <p>This action cannot be undone.</p>
+            <div id="modal-buttons">
+                <button id="modal-yes">Yes</button>
+                <button id="modal-no">No</button>
+            </div>
+        </div>
+    </div>
+
     <script src="renderer.js"></script>
 </body>
 
