@@ -16,7 +16,7 @@ function createWindow() {
 
     mainWindow.setMenu(null);
     mainWindow.loadFile('index.html');
-    mainWindow.webContents.openDevTools(); // Uncomment to debug
+    // mainWindow.webContents.openDevTools(); // Uncomment to debug
 }
 
 app.whenReady().then(() => {
