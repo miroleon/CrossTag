@@ -1,6 +1,6 @@
 {
   "name": "CrossTag",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A simple image tagging app",
   "main": "main.js",
   "scripts": {
@@ -18,18 +18,22 @@
       "output": "dist"
     },
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "src/icon/win/icon.ico"
     },
     "mac": {
       "category": "public.app-category.graphics-design",
-      "target": "dir"
+      "target": "dir",
+      "icon": "src/icon/mac/icon.icns"
+
     },
     "linux": {
       "target": [
         "AppImage",
         "deb"
       ],
-      "category": "Graphics"
+      "category": "Graphics",
+      "icon": "src/icon/png/1024x1024.png"
     }
   },
   "dependencies": {

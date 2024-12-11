@@ -8,6 +8,7 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1000,
         height: 800,
+        icon: path.join(__dirname, 'src/icon/png/1024x1024.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -15,7 +16,7 @@ function createWindow() {
 
     mainWindow.setMenu(null);
     mainWindow.loadFile('index.html');
-    // mainWindow.webContents.openDevTools(); // Uncomment to debug
+    mainWindow.webContents.openDevTools(); // Uncomment to debug
 }
 
 app.whenReady().then(() => {
