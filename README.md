@@ -1,12 +1,4 @@
-<br /><div align="center"><a href="https://github.com/miroleon/CrossTag"><img src="src/icon/png/128x128.png" alt="Logo" width="80" height="80"></a><h3 align="center">CrossTag</h3>
-
-  <p align="center">
- A cross platform tagging app built with Electron!
-    <br />
-    <a href="https://github.com/miroleon/CrossTag/releases"><strong>Download for Windows, MacOS, and Linux »</strong></a>
-    <br />
-    <br />
-</div>
+<br /><div align="center"><a href="https://github.com/miroleon/CrossTag"><img src="src/icon/png/128x128.png" alt="Logo" width="80" height="80"></a><h3 align="center">CrossTag</h3><p align="center">A cross platform tagging app built with Electron!<br /><a href="https://github.com/miroleon/CrossTag/releases"><strong>Download for Windows, MacOS, and Linux »</strong></a><br /><br /></div>
 
 # About
 CrossTag is an image tagging app heavily inspired by [TagGUI](https://github.com/jhc13/taggui). It is designed to prepare simple datasets for AI training applications. Since most beginner-friendly image tagging tools are not designed to be natively supported on all major OS, this app tries to offer a very simple alternative to other tools. This may be helpful for educators in the AI sector who are working with non-expert users on different OS.
