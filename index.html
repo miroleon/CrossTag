@@ -11,9 +11,11 @@
 <body>
     <div class="container">
 
-        <div id="header">
-            <h1>CrossTag</h1>
-            <div class="header-controls">
+        <div id="header" class="inner-container-light">
+
+            <img src="src/icon/png/256x256.png" alt="">
+
+            <div>
                 <button id="select-folder-btn"><span class="material-symbols-outlined">
                         folder_open
                     </span></button>
@@ -23,43 +25,53 @@
                     </span>
                 </button>
             </div>
+
         </div>
 
-        <div id="sidebar">
-            <ul id="images-list"></ul>
-            <div class="rename-container">
-                <input type="text" id="rename-base-input" placeholder="Base name...">
-                <button id="rename-all-btn">Rename</button>
+        <div class="inner-container inner-container-light">
+            <div id="sidebar" class="inner-container-dark">
+                <ul id="images-list"></ul>
+
+                <div class="rename-container inner-container-light">
+                    <input type="text" id="rename-base-input" placeholder="Base name...">
+                    <button id="rename-all-btn">Rename</button>
+                </div>
+
+            </div>
+
+            <div id="image-grid-container" class="inner-container-dark">
+                <img id="image-container" alt="Click on the folder icon to load your image folder!" />
+            </div>
+
+            <div id="text-grid-container" class="inner-container-dark">
+                <textarea id="text-container" class="inner-container-light" placeholder="Image tags..."></textarea>
+                <div id="controls" class="inner-container-light">
+                    <!-- Add-to-all section -->
+                    <div class="inner-container-dark-small controls-sub-container">
+                        <input type="text" id="add-to-all-input" placeholder="Text to append...">
+                        <div class="radio-container">
+                            <label><input type="radio" name="append-position" id="append-position-start" value="start">
+                                Start</label>
+                            <label><input type="radio" name="append-position" id="append-position-end" value="end"
+                                    checked>
+                                End</label>
+                        </div>
+                        <button id="add-to-all-btn">Add to All</button>
+                    </div>
+                    <!-- Search and Replace -->
+                    <div class="inner-container-dark-small controls-sub-container">
+                        <input type="text" id="search-input" placeholder="Search for...">
+                        <input type="text" id="replace-input" placeholder="Replace with...">
+                        <button id="replace-all-btn">Replace All</button>
+                    </div>
+                    <!-- Clear all button -->
+                    <div class="inner-container-dark-small controls-sub-container"><button id="clear-all-btn">Clear
+                            All</button></div>
+                    <!-- Status message -->
+                    <div id="status-message"></div>
+                </div>
             </div>
         </div>
-
-        <div id="controls">
-            <!-- Add-to-all section -->
-            <input type="text" id="add-to-all-input" placeholder="Text to append...">
-            <div class="radio-container">
-                <label><input type="radio" name="append-position" id="append-position-start" value="start">
-                    Start</label>
-                <label><input type="radio" name="append-position" id="append-position-end" value="end" checked>
-                    End</label>
-            </div>
-            <button id="add-to-all-btn">Add to All</button>
-            <!-- Clear all button -->
-            <button id="clear-all-btn">Clear All</button>
-            <!-- Search and Replace -->
-            <input type="text" id="search-input" placeholder="Search for...">
-            <input type="text" id="replace-input" placeholder="Replace with...">
-            <button id="replace-all-btn">Replace All</button>
-            <div id="status-message"></div>
-        </div>
-
-        <div id="image-grid-container">
-            <img id="image-container" alt="Click on the folder icon to load your image folder!" />
-        </div>
-
-        <div id="text-grid-container">
-            <textarea id="text-container" placeholder="Image tags..."></textarea>
-        </div>
-
     </div>
 
     <!-- Custom Confirmation Modal -->
@@ -73,6 +85,8 @@
             </div>
         </div>
     </div>
+
+    <div class="box-area"></div>
 
     <script>
         const toggleButton = document.getElementById('theme-toggle');

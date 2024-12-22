@@ -46,7 +46,17 @@ function displayImageList() {
     imagesData.forEach((img, idx) => {
         const li = document.createElement('li');
         li.textContent = img.imageName;
-        li.addEventListener('click', () => loadImageAndText(idx));
+
+        // Apply 'selected' class if this is the current index
+        if (idx === currentIndex) {
+            li.classList.add('selected');
+        }
+
+        li.addEventListener('click', () => {
+            loadImageAndText(idx);
+            // Update the selected class
+            updateSelectedClass();
+        });
         imagesList.appendChild(li);
     });
 }
@@ -57,6 +67,9 @@ function loadImageAndText(index) {
     const data = imagesData[index];
     imageContainer.src = data.imagePath;
     textContainer.value = data.content;
+
+    // After updating currentIndex, update the selected class
+    updateSelectedClass();
 }
 
 textContainer.addEventListener('input', async () => {
@@ -219,3 +232,41 @@ renameAllBtn.addEventListener('click', async () => {
         statusMessage.textContent = 'Error renaming files: ' + result.error;
     }
 });
+
+/**
+ * Updates the 'selected' class on the <li> elements based on the currentIndex.
+ */
+function updateSelectedClass() {
+    const listItems = imagesList.getElementsByTagName('li');
+    for (let i = 0; i < listItems.length; i++) {
+        if (i === currentIndex) {
+            listItems[i].classList.add('selected');
+        } else {
+            listItems[i].classList.remove('selected');
+        }
+    }
+}
+
+function handleArrowNavigation(event) {
+    const { key } = event;
+
+    // Ignore key events if focus is on input or textarea elements
+    const tagName = document.activeElement.tagName.toLowerCase();
+    if (tagName === 'input' || tagName === 'textarea') {
+        return;
+    }
+
+    if (key === 'ArrowUp' || key === 'ArrowLeft') {
+        // Navigate to the previous image with wrapping
+        const newIndex = (currentIndex > 0) ? currentIndex - 1 : imagesData.length - 1;
+        loadImageAndText(newIndex);
+        event.preventDefault();
+    } else if (key === 'ArrowDown' || key === 'ArrowRight') {
+        // Navigate to the next image with wrapping
+        const newIndex = (currentIndex < imagesData.length - 1) ? currentIndex + 1 : 0;
+        loadImageAndText(newIndex);
+        event.preventDefault();
+    }
+}
+
+document.addEventListener('keydown', handleArrowNavigation);
