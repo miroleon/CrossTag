@@ -1,10 +1,4 @@
-<br />
-<div align="center">
-  <a href="https://github.com/miroleon/CrossTag">
-    <img src="src/icon/png/128x128.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">CrossTag</h3>
+<br /><div align="center"><a href="https://github.com/miroleon/CrossTag"><img src="src/icon/png/128x128.png" alt="Logo" width="80" height="80"></a><h3 align="center">CrossTag</h3>
 
   <p align="center">
  A cross platform tagging app built with Electron!
