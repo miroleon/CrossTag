@@ -23,9 +23,11 @@
     },
     "mac": {
       "category": "public.app-category.graphics-design",
-      "target": "dir",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "icon": "src/icon/mac/icon.icns"
-
     },
     "linux": {
       "target": [
