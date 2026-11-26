@@ -1,0 +1,370 @@
+<!doctype html>
+<!--
+  CrossTag web: the caption editor of CrossTag as a web page. app.js connects this markup to the
+  tagger library in lib/. The icon and the Material Symbols font come from ../src, the same files the
+  desktop app uses; the Pages workflow publishes both folders.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CrossTag web</title>
+    <meta name="description" content="Write captions for LoRA training datasets in the browser. The pictures stay on your computer." />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/png" href="../src/icon/png/32x32.png" />
+    <link rel="stylesheet" href="../src/styles/material-symbols/outlined.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      // The theme chosen on an earlier visit, set before the page draws, so it does not flash.
+      try {
+        const theme = localStorage.getItem('crosstag-theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {
+        // Storage can be blocked; the page then follows the system setting.
+      }
+    </script>
+    <script type="module" src="app.js"></script>
+  </head>
+
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+
+    <div class="app">
+      <header class="rail panel">
+        <img src="../src/icon/png/128x128.png" alt="" width="35" height="35" />
+        <div class="rail__buttons">
+          <button type="button" class="icon-button" data-open-folder hidden title="Open a folder">
+            <span class="material-symbols-outlined" aria-hidden="true">folder_open</span>
+            <span class="visually-hidden">Open a folder</span>
+          </button>
+          <label class="icon-button" title="Add pictures, captions or a ZIP">
+            <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span>
+            <span class="visually-hidden">Add pictures, captions or a ZIP</span>
+            <input type="file" class="visually-hidden" data-add-files multiple accept="image/png,image/jpeg,image/gif,image/webp,.txt,.json,.zip" />
+          </label>
+          <button type="button" class="icon-button" id="theme" title="Switch between dark and light">
+            <span class="material-symbols-outlined" aria-hidden="true">contrast</span>
+            <span class="visually-hidden">Switch between dark and light</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <div class="topbar panel">
+          <h1>CrossTag <span class="muted">web</span></h1>
+          <p role="status" id="mode">No pictures open yet.</p>
+          <div class="meter" id="meter" hidden>
+            <progress max="1" aria-label="Reading pictures"></progress>
+            <span class="small"></span>
+          </div>
+        </div>
+
+        <section class="welcome panel" id="welcome" aria-labelledby="welcome-title">
+          <h2 id="welcome-title">Captions for LoRA training, in the browser</h2>
+          <p>
+            CrossTag writes one caption per picture and keeps it in a .txt file with the picture's name, the layout that
+            ai-toolkit, OneTrainer and kohya read. The page has no server: the pictures stay in your folder or in this
+            browser.
+          </p>
+          <div class="cluster">
+            <button type="button" class="button button--primary" data-open-folder hidden>
+              <span class="material-symbols-outlined" aria-hidden="true">folder_open</span> Open a folder
+            </button>
+            <label class="button">
+              <span class="material-symbols-outlined" aria-hidden="true">add_photo_alternate</span> Add pictures, captions or a ZIP
+              <input type="file" class="visually-hidden" data-add-files multiple accept="image/png,image/jpeg,image/gif,image/webp,.txt,.json,.zip" />
+            </label>
+            <label class="button" id="add-folder" hidden>
+              <span class="material-symbols-outlined" aria-hidden="true">drive_folder_upload</span> Add a folder of pictures
+              <input type="file" class="visually-hidden" data-add-files multiple webkitdirectory />
+            </label>
+          </div>
+          <p class="small muted" id="open-hint"></p>
+          <p class="small muted">Dragging pictures, captions or a ZIP onto the page adds them too.</p>
+          <p class="small">
+            The desktop app for Windows, macOS and Linux is on the
+            <a href="https://github.com/miroleon/CrossTag/releases">releases page</a>. The code is on
+            <a href="https://github.com/miroleon/CrossTag">GitHub</a> under the MIT License.
+          </p>
+        </section>
+
+        <div class="columns" id="work" hidden>
+          <section class="sidebar panel" aria-labelledby="list-title">
+            <h2 id="list-title">Pictures</h2>
+            <div class="cluster small" id="filter" hidden>
+              <span id="filter-text"></span>
+              <button type="button" class="button button--small" id="filter-clear">Show all</button>
+            </div>
+            <div class="cluster small">
+              <span id="selection" aria-live="polite"></span>
+              <button type="button" class="button button--small" id="select-all">Select all shown</button>
+              <button type="button" class="button button--small" id="select-none">Clear selection</button>
+            </div>
+            <ul class="list" id="list" aria-labelledby="list-title"></ul>
+            <p class="small muted">
+              Ctrl or Cmd with a click adds a picture to the selection; Shift with a click selects a range. The arrow
+              keys move between pictures.
+            </p>
+          </section>
+
+          <section class="viewer panel" aria-label="Picture">
+            <div class="preview" id="preview"></div>
+            <div class="cluster cluster--center">
+              <button type="button" class="button button--small" id="prev" aria-keyshortcuts="ArrowLeft">
+                <span class="material-symbols-outlined" aria-hidden="true">chevron_left</span> Previous
+              </button>
+              <span class="small mono" id="position"></span>
+              <button type="button" class="button button--small" id="next" aria-keyshortcuts="ArrowRight">
+                Next <span class="material-symbols-outlined" aria-hidden="true">chevron_right</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="editor panel" aria-label="Caption and tools">
+            <div class="stack-tight">
+              <label for="caption" id="caption-label">Caption</label>
+              <textarea id="caption" class="input caption" rows="5" spellcheck="true" aria-describedby="caption-hint tokens"></textarea>
+              <div class="cluster small">
+                <span role="status" class="saved" id="saved"></span>
+                <span class="mono" id="tokens"></span>
+              </div>
+              <p class="small muted" id="caption-hint">Saved while you type. Alt with an arrow key moves to the next or previous picture.</p>
+            </div>
+
+            <details class="tool">
+              <summary>Where this picture comes from</summary>
+              <div class="stack">
+                <div class="stack-tight">
+                  <label for="source">Source</label>
+                  <select id="source" class="input">
+                    <option value="">not given</option>
+                    <option value="own">taken by me</option>
+                    <option value="licensed">found, with a license that allows it</option>
+                    <option value="other">other</option>
+                  </select>
+                </div>
+                <div class="stack-tight">
+                  <label for="source-note">Details (link, license, photographer)</label>
+                  <input id="source-note" class="input" autocomplete="off" />
+                </div>
+                <div class="stack-tight">
+                  <label for="people">People in the picture</label>
+                  <select id="people" class="input">
+                    <option value="">not given</option>
+                    <option value="none">no people</option>
+                    <option value="agreed">people who agreed to be in the dataset</option>
+                    <option value="unknown">people who did not agree, or nobody asked them</option>
+                  </select>
+                </div>
+              </div>
+            </details>
+
+            <details class="tool" open>
+              <summary>Trigger word and model</summary>
+              <div class="stack">
+                <div class="stack-tight">
+                  <label for="trigger">Trigger word</label>
+                  <input id="trigger" class="input" autocomplete="off" spellcheck="false" aria-describedby="trigger-hint" />
+                  <p class="small muted" id="trigger-hint">
+                    The name your LoRA learns, such as "s30ulphoto". The export puts it at the start of every caption. A
+                    made-up word works better than a common one, because the model has no old meaning for it to unlearn.
+                  </p>
+                </div>
+                <div class="stack-tight">
+                  <label for="target">Model the LoRA is for</label>
+                  <select id="target" class="input" aria-describedby="target-hint">
+                    <option value="zimage">Z-Image Turbo</option>
+                    <option value="flux">FLUX</option>
+                    <option value="sdxl">SDXL</option>
+                    <option value="sd15">SD 1.5</option>
+                  </select>
+                  <p class="small muted" id="target-hint"></p>
+                </div>
+              </div>
+            </details>
+
+            <details class="tool" open>
+              <summary>Tags</summary>
+              <div class="stack">
+                <p class="small muted">
+                  Every part between commas, with how many captions use it. A click shows only the pictures with that
+                  tag. Tags used once are marked: they are often typos.
+                </p>
+                <ul class="tags" id="tags" aria-label="Tags"></ul>
+                <form class="row" id="tag-rename">
+                  <div class="stack-tight">
+                    <label for="tag-from">Tag</label>
+                    <input id="tag-from" class="input" list="tag-options" autocomplete="off" required />
+                    <datalist id="tag-options"></datalist>
+                  </div>
+                  <div class="stack-tight">
+                    <label for="tag-to">New text</label>
+                    <input id="tag-to" class="input" autocomplete="off" aria-describedby="tag-to-hint" />
+                  </div>
+                  <button type="submit" class="button">Change everywhere</button>
+                </form>
+                <p class="small muted" id="tag-to-hint">Changes the tag in every caption. Leave the new text empty to remove the tag.</p>
+              </div>
+            </details>
+
+            <details class="tool">
+              <summary>Change many captions</summary>
+              <div class="stack">
+                <fieldset class="scope">
+                  <legend>Apply to</legend>
+                  <label class="check"><input type="radio" name="scope" value="shown" checked /> <span id="scope-shown"></span></label>
+                  <label class="check"><input type="radio" name="scope" value="selected" /> <span id="scope-selected"></span></label>
+                </fieldset>
+                <form class="row" id="add-start">
+                  <div class="stack-tight">
+                    <label for="start-text">Add at the start</label>
+                    <input id="start-text" class="input" autocomplete="off" required />
+                  </div>
+                  <button type="submit" class="button">Add</button>
+                </form>
+                <form class="row" id="add-end">
+                  <div class="stack-tight">
+                    <label for="end-text">Add at the end</label>
+                    <input id="end-text" class="input" autocomplete="off" required />
+                  </div>
+                  <button type="submit" class="button">Add</button>
+                </form>
+                <form class="row" id="replace">
+                  <div class="stack-tight">
+                    <label for="search">Find</label>
+                    <input id="search" class="input" autocomplete="off" required />
+                  </div>
+                  <div class="stack-tight">
+                    <label for="replacement">Replace with</label>
+                    <input id="replacement" class="input" autocomplete="off" />
+                  </div>
+                  <label class="check small"><input type="checkbox" id="ignore-case" /> Ignore upper and lower case</label>
+                  <button type="submit" class="button">Replace</button>
+                </form>
+                <div class="cluster">
+                  <button type="button" class="button" id="clear">Empty the captions</button>
+                  <button type="button" class="button" id="undo" disabled>Undo the last change</button>
+                </div>
+                <p role="status" class="small" id="bulk-status"></p>
+              </div>
+            </details>
+
+            <details class="tool">
+              <summary>Rename the files</summary>
+              <div class="stack">
+                <p class="small muted">
+                  Gives every picture and its caption a name with a number, such as seoul-01.jpg and seoul-01.txt. In a
+                  folder this renames the files on disk, so keep a backup.
+                </p>
+                <form class="row" id="rename">
+                  <div class="stack-tight">
+                    <label for="base">Base name</label>
+                    <input id="base" class="input" autocomplete="off" required aria-describedby="rename-preview" />
+                  </div>
+                  <button type="submit" class="button" id="rename-button">Rename all</button>
+                </form>
+                <p class="small mono" id="rename-preview"></p>
+                <p role="status" class="small" id="rename-status"></p>
+              </div>
+            </details>
+
+            <details class="tool">
+              <summary>Check the dataset</summary>
+              <div class="stack">
+                <p class="small muted">
+                  Looks for pictures without captions, pictures smaller than the training size, very wide or tall
+                  pictures, the same picture twice, and a mix of file types.
+                </p>
+                <div class="cluster"><button type="button" class="button" id="check">Check</button></div>
+                <div class="meter" id="check-meter" hidden>
+                  <progress max="1" aria-label="Checking the dataset"></progress>
+                  <span class="small"></span>
+                </div>
+                <p role="status" class="small" id="check-status"></p>
+                <ul class="findings" id="findings"></ul>
+              </div>
+            </details>
+
+            <details class="tool">
+              <summary>Dataset card</summary>
+              <div class="stack">
+                <p class="small muted">
+                  The card goes into every export as DATASET.md: who made the dataset, why, and under which license. The
+                  source of each picture comes from the fields under "Where this picture comes from".
+                </p>
+                <div class="stack-tight">
+                  <label for="card-title">Name of the dataset</label>
+                  <input id="card-title" class="input" data-card="title" autocomplete="off" />
+                </div>
+                <div class="stack-tight">
+                  <label for="card-author">Made by</label>
+                  <input id="card-author" class="input" data-card="author" autocomplete="off" />
+                </div>
+                <div class="stack-tight">
+                  <label for="card-license">License</label>
+                  <input id="card-license" class="input" data-card="license" autocomplete="off" />
+                </div>
+                <div class="stack-tight">
+                  <label for="card-purpose">Purpose</label>
+                  <textarea id="card-purpose" class="input" data-card="purpose" rows="2"></textarea>
+                </div>
+                <div class="stack-tight">
+                  <label for="card-notes">Notes</label>
+                  <textarea id="card-notes" class="input" data-card="notes" rows="3"></textarea>
+                </div>
+              </div>
+            </details>
+
+            <details class="tool" open>
+              <summary>Export</summary>
+              <div class="stack">
+                <div class="row">
+                  <div class="stack-tight">
+                    <label for="layout">For</label>
+                    <select id="layout" class="input" aria-describedby="layout-hint">
+                      <option value="folder">ai-toolkit or OneTrainer</option>
+                      <option value="kohya">kohya sd-scripts</option>
+                      <option value="imagefolder">Hugging Face datasets</option>
+                      <option value="captions">CrossTag, to continue later</option>
+                    </select>
+                  </div>
+                  <div class="stack-tight" id="repeats-field" hidden>
+                    <label for="repeats">Repeats</label>
+                    <input id="repeats" class="input input--short" type="number" min="1" max="100" step="1" value="10" />
+                  </div>
+                </div>
+                <p class="small muted" id="layout-hint"></p>
+                <div class="cluster">
+                  <button type="button" class="button button--primary" id="export">
+                    <span class="material-symbols-outlined" aria-hidden="true">download</span> Save the ZIP
+                  </button>
+                </div>
+                <div class="meter" id="export-meter" hidden>
+                  <progress max="1" aria-label="Export"></progress>
+                  <span class="small"></span>
+                </div>
+                <p role="status" class="small" id="export-status"></p>
+                <div class="cluster" id="forget-row" hidden>
+                  <button type="button" class="button" id="forget">Remove the pictures from this browser</button>
+                  <span role="status" class="small" id="forget-status"></span>
+                </div>
+              </div>
+            </details>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <dialog class="enlarged" id="enlarged" aria-labelledby="enlarged-title">
+      <div class="enlarged__head">
+        <h2 class="small" id="enlarged-title"></h2>
+        <button type="button" class="icon-button" id="enlarged-close" title="Close">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          <span class="visually-hidden">Close</span>
+        </button>
+      </div>
+      <img id="enlarged-image" alt="" />
+      <p class="small" id="enlarged-caption"></p>
+    </dialog>
+  </body>
+</html>

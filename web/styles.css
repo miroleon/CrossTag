@@ -1,0 +1,667 @@
+/*
+ * CrossTag web: the look of the desktop app (src/styles/styles.css), with rounded panels on a dark or
+ * light ground and the pink glow behind them. The dark theme is the desktop app's default; here the
+ * system setting picks the first theme and the contrast button switches it.
+ *
+ * Colours are tokens on :root. Text keeps at least 4.5:1 contrast against its panel, and every
+ * control shows a visible focus ring.
+ */
+
+:root {
+  --bg: #202124;
+  --panel: rgba(32, 33, 36, 0.78);
+  --raised: rgba(71, 71, 71, 0.75);
+  --raised-strong: rgba(95, 95, 95, 0.9);
+  --text: #f2f1ee;
+  --muted: #c4c3c0;
+  --border: rgba(242, 241, 238, 0.28);
+  --focus: #f2f1ee;
+  --ok: #5fd68f;
+  --warn: #f1c40f;
+  --error: #ff8a7a;
+  --accent-text: #202124;
+  --accent: linear-gradient(135deg, rgb(244, 117, 181), rgb(251, 169, 142));
+  --glow: radial-gradient(circle, rgba(244, 117, 181, 1), rgba(251, 169, 142, 1), rgba(0, 0, 0, 0));
+  --radius: 10px;
+  --gap: 10px;
+  color-scheme: dark;
+}
+
+/* The light theme of the desktop app, from the system setting or the button. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #d7d6d3;
+    --panel: rgba(206, 204, 200, 0.9);
+    --raised: rgba(255, 255, 255, 0.75);
+    --raised-strong: rgba(255, 255, 255, 0.95);
+    --text: #202124;
+    --muted: #4a4a4a;
+    --border: rgba(32, 33, 36, 0.35);
+    --focus: #202124;
+    --ok: #17703c;
+    --warn: #7a5d00;
+    --error: #a8281c;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme='light'] {
+  --bg: #d7d6d3;
+  --panel: rgba(206, 204, 200, 0.9);
+  --raised: rgba(255, 255, 255, 0.75);
+  --raised-strong: rgba(255, 255, 255, 0.95);
+  --text: #202124;
+  --muted: #4a4a4a;
+  --border: rgba(32, 33, 36, 0.35);
+  --focus: #202124;
+  --ok: #17703c;
+  --warn: #7a5d00;
+  --error: #a8281c;
+  color-scheme: light;
+}
+
+/* --- base ------------------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.25rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stack-tight {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.cluster--center {
+  justify-content: center;
+}
+
+/* The pink glow of the desktop app, behind everything. */
+.glow {
+  position: fixed;
+  top: -15vh;
+  right: -15vw;
+  width: 100vh;
+  height: 100vh;
+  background-image: var(--glow);
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* --- layout ----------------------------------------------------------------------------------- */
+
+.panel {
+  padding: var(--gap);
+  border-radius: var(--radius);
+  background-color: var(--panel);
+}
+
+/* Wide screens: the icon rail on the left, then the list, the picture and the caption side by side,
+   each column scrolling on its own, as in the desktop app. */
+.app {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: var(--gap);
+  height: 100dvh;
+  padding: var(--gap);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  background-color: var(--raised);
+}
+
+.rail img {
+  width: 35px;
+  height: 35px;
+}
+
+.rail__buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--gap);
+  min-width: 0;
+  min-height: 0;
+}
+
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+
+.topbar #mode {
+  flex: 1 1 20rem;
+}
+
+.topbar .meter {
+  flex: 1 1 100%;
+}
+
+.welcome {
+  align-self: start;
+  max-width: 46rem;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 1.7fr) minmax(300px, 1.2fr);
+  gap: var(--gap);
+  min-height: 0;
+}
+
+.sidebar,
+.viewer,
+.editor {
+  min-height: 0;
+  overflow: auto;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Phones and narrow windows: one column, list, picture and caption under each other, and the page
+   scrolls as a whole. */
+@media (max-width: 960px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .rail,
+  .rail__buttons {
+    flex-direction: row;
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar,
+  .viewer,
+  .editor {
+    overflow: visible;
+  }
+
+  .list {
+    max-height: 40vh;
+  }
+
+  .preview canvas {
+    max-height: 70vh;
+  }
+}
+
+/* --- controls --------------------------------------------------------------------------------- */
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.icon-button .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.icon-button:hover {
+  background-color: var(--raised-strong);
+}
+
+/* The file inputs hide inside their labels, so the label shows the focus. */
+label:has(> input[type='file']:focus-visible) {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--raised);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background-color: var(--raised-strong);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.button--primary {
+  border-color: transparent;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.06);
+}
+
+.button--small {
+  min-height: 28px;
+  padding: 2px 8px;
+  font-size: 0.875rem;
+}
+
+.button .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.input {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--raised);
+  color: var(--text);
+  font: inherit;
+}
+
+.input--short {
+  max-width: 8rem;
+}
+
+textarea.input {
+  resize: vertical;
+}
+
+.caption {
+  min-height: 7rem;
+  font-size: 1.1rem;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  margin: 3px;
+  accent-color: rgb(244, 117, 181);
+}
+
+fieldset {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.row > .stack-tight {
+  flex: 1 1 10rem;
+}
+
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meter progress {
+  width: 100%;
+  height: 8px;
+  accent-color: rgb(244, 117, 181);
+}
+
+.saved {
+  color: var(--ok);
+}
+
+#tokens[data-over] {
+  color: var(--warn);
+}
+
+/* --- tools ------------------------------------------------------------------------------------ */
+
+.tool {
+  border-radius: var(--radius);
+  background-color: var(--raised);
+}
+
+.tool > summary {
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tool > .stack {
+  padding: 4px 12px 12px;
+}
+
+/* --- the list --------------------------------------------------------------------------------- */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 8rem;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.pick {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pick:hover,
+.pick[aria-current='true'] {
+  background-color: var(--raised);
+}
+
+.pick[aria-current='true'] {
+  border-color: var(--border);
+}
+
+.thumb {
+  grid-row: span 2;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: var(--raised);
+}
+
+.pick__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pick__mark {
+  color: var(--warn);
+}
+
+/* --- the picture ------------------------------------------------------------------------------ */
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.preview__open {
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  cursor: zoom-in;
+}
+
+.preview canvas {
+  display: block;
+  max-width: 100%;
+  max-height: calc(100dvh - 190px);
+  width: auto;
+  height: auto;
+  border-radius: 6px;
+}
+
+.enlarged {
+  max-width: min(96vw, 1600px);
+  max-height: 96vh;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+.enlarged::backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.enlarged__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.enlarged img {
+  display: block;
+  max-width: 100%;
+  max-height: calc(96vh - 130px);
+  margin: 8px auto;
+}
+
+/* --- tags and findings ------------------------------------------------------------------------ */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.tag {
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background-color: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.tag[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: transparent;
+}
+
+.tag__once {
+  color: var(--warn);
+}
+
+.tag[aria-pressed='true'] .tag__once {
+  color: var(--accent-text);
+}
+
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+/* --- system settings -------------------------------------------------------------------------- */
+
+@media (forced-colors: active) {
+  .panel,
+  .tool,
+  .button,
+  .tag {
+    border: 1px solid CanvasText;
+  }
+
+  .glow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+}
