@@ -1,0 +1,58 @@
+# Publishes CrossTag web (the web/ folder) to GitHub Pages.
+# One-time setup: repository Settings, Pages, Build and deployment, Source: "GitHub Actions".
+#
+# The page needs no build step. This workflow copies web/ and the files it shares with the desktop
+# app (the icon and the Material Symbols font in src/) into one folder, so the published site has
+# the same layout as the repository: the page is at /CrossTag/web/ and the address /CrossTag/ leads
+# there. It runs on every push to main that changes these files, and by hand under Actions.
+name: Publish CrossTag web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'src/icon/png/**'
+      - 'src/fonts/**'
+      - 'src/styles/material-symbols/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits for the one that runs.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Collect the site
+        run: |
+          mkdir -p _site/src/icon _site/src/styles
+          cp -R web _site/web
+          cp -R src/icon/png _site/src/icon/png
+          cp -R src/fonts _site/src/fonts
+          cp -R src/styles/material-symbols _site/src/styles/material-symbols
+          printf '%s\n' '<!doctype html><meta charset="utf-8"><title>CrossTag web</title>' \
+            '<meta http-equiv="refresh" content="0; url=web/"><a href="web/">CrossTag web</a>' > _site/index.html
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
