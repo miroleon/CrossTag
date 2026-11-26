@@ -44,3 +44,6 @@ Lastly, you find the "Clear" button, which deletes the content of all the text f
 
 # Support
 You can find my [other projects on GitHub](https://github.com/miroleon) or watch my [YouTube Tutorials](https://www.youtube.com/@miroxleon).
+
+# License
+CrossTag is released under the MIT License (see `LICENSE`). The icons come from the Material Symbols font (Apache-2.0).
