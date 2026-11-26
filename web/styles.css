@@ -273,6 +273,8 @@ a {
 @media (max-width: 960px) {
   .app {
     grid-template-columns: minmax(0, 1fr);
+    /* The rail keeps its own height; the workspace takes the rest of the screen. */
+    grid-template-rows: auto 1fr;
     height: auto;
     min-height: 100dvh;
   }
